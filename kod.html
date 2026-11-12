@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Код доступа — демо блока</title>
+<style>html,body{margin:0;background:#0b0d12}body{min-height:100vh;display:flex;align-items:center}#smfcode{width:100%}</style>
+</head>
+<body>
+<!-- ===== SMF-CODE:START — копировать в HTML-блок Tilda (T123) отсюда ===== -->
+<!--
+  Блок «Код доступа»: поисковая строка «Введите код для доступа к сайту»,
+  в ней идёт перебор случайных символов, вокруг мерцают символы. Результата нет — только перебор.
+  Настройки (data-*):
+  data-placeholder — надпись в строке
+  data-wait        — сколько секунд видна надпись перед перебором
+  data-brute       — сколько секунд идёт перебор, потом снова надпись (0 — перебор без остановки)
+  data-tick        — скорость перебора, мс на смену символов (меньше — быстрее)
+  data-len         — длина кода в строке (символов)
+  data-symbols     — из каких символов собирать перебор
+  data-bg          — сколько символов мерцает вокруг строки
+  Цвета — переменные --smfcode-* в <style>.
+-->
+<section id="smfcode" class="smfcode"
+     data-placeholder="Введите код для доступа к сайту"
+     data-wait="2" data-brute="6" data-tick="70" data-len="9"
+     data-symbols="№#!%?@&amp;*$+=/\<>0123456789ABCDEFGHJKLMNPQRSTUVWXYZАБВГДЖЗИКЛМНПРСТФЦЧШЭЮЯ"
+     data-bg="34">
+  <div class="smfcode-frame">
+    <div class="smfcode-field" aria-hidden="true"></div>
+    <div class="smfcode-bar" role="img" aria-label="Поисковая строка: введите код для доступа к сайту. Идёт перебор случайных символов.">
+      <div class="smfcode-text">
+        <span class="smfcode-ph"></span>
+        <span class="smfcode-code"></span><span class="smfcode-caret"></span>
+      </div>
+      <svg class="smfcode-lens" viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="17" cy="17" r="10.5" fill="none" stroke="currentColor" stroke-width="3"/>
+        <circle cx="17" cy="17" r="3.4" fill="none" stroke="currentColor" stroke-width="2"/>
+        <path d="M25 25 L34 34" stroke="currentColor" stroke-width="4.2" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+</section>
+<style>
+#smfcode{
+  --smfcode-bg:#0b0d12; --smfcode-frame:#2a3140; --smfcode-bar:#121722; --smfcode-line:#3c4658;
+  --smfcode-text:#e9ecf2; --smfcode-muted:#8b93a3; --smfcode-hud:#8cc4d4;
+  --smfcode-mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  background:var(--smfcode-bg); padding:clamp(28px,6vw,64px) 16px; box-sizing:border-box;
+}
+#smfcode *{box-sizing:border-box}
+#smfcode .smfcode-frame{
+  position:relative; width:100%; max-width:960px; margin:0 auto; aspect-ratio:16/9;
+  border:1.5px solid var(--smfcode-frame); border-radius:14px; overflow:hidden;
+  display:flex; align-items:center; justify-content:center; padding:0 clamp(14px,5vw,64px);
+  background:radial-gradient(120% 90% at 50% 50%,#121826 0%,var(--smfcode-bg) 70%);
+}
+#smfcode .smfcode-field{position:absolute; inset:0; pointer-events:none}
+#smfcode .smfcode-sym{
+  position:absolute; font:600 var(--s,20px)/1 var(--smfcode-mono); color:var(--smfcode-hud);
+  opacity:0; transform:translate(-50%,-50%); transition:opacity .35s ease; will-change:opacity,transform;
+  text-shadow:0 0 10px color-mix(in srgb,var(--smfcode-hud) 55%,transparent);
+}
+#smfcode .smfcode-sym.is-dim{color:var(--smfcode-muted); text-shadow:none}
+#smfcode .smfcode-bar{
+  position:relative; z-index:1; width:100%; max-width:720px; min-height:clamp(64px,11vw,96px);
+  display:flex; align-items:center; gap:14px; padding:12px clamp(16px,3vw,28px);
+  background:color-mix(in srgb,var(--smfcode-bar) 92%,transparent);
+  border:2px solid var(--smfcode-line); border-radius:999px;
+  box-shadow:0 0 0 0 transparent; transition:border-color .4s,box-shadow .4s;
+  opacity:0; transform:translateY(14px) scale(.98); transition:opacity .7s ease,transform .7s ease,border-color .4s,box-shadow .4s;
+}
+#smfcode.is-on .smfcode-bar{opacity:1; transform:none}
+#smfcode.is-brute .smfcode-bar{
+  border-color:color-mix(in srgb,var(--smfcode-hud) 60%,var(--smfcode-line));
+  box-shadow:0 0 28px color-mix(in srgb,var(--smfcode-hud) 22%,transparent);
+}
+#smfcode .smfcode-text{flex:1; min-width:0; position:relative; display:flex; align-items:center; min-height:1.4em;
+  font-size:clamp(16px,2.6vw,26px); line-height:1.25; color:var(--smfcode-text)}
+#smfcode .smfcode-ph{color:var(--smfcode-muted); font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; transition:opacity .3s}
+#smfcode .smfcode-code{font:600 1.15em/1 var(--smfcode-mono); letter-spacing:.14em; white-space:pre; display:none}
+#smfcode.is-brute .smfcode-ph{display:none}
+#smfcode.is-brute .smfcode-code{display:inline}
+#smfcode .smfcode-caret{display:inline-block; width:2px; height:1.15em; margin-left:3px; background:var(--smfcode-hud); animation:smfcode-blink 1s steps(1) infinite}
+#smfcode:not(.is-brute) .smfcode-caret{order:-1; margin:0 6px 0 0}
+#smfcode .smfcode-lens{flex:none; width:clamp(30px,5vw,44px); height:auto; color:var(--smfcode-text); transition:color .4s}
+#smfcode.is-brute .smfcode-lens{color:var(--smfcode-hud)}
+@media (max-width:600px){ #smfcode .smfcode-frame{aspect-ratio:auto; height:clamp(320px,90vw,440px)} }
+@keyframes smfcode-blink{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){ #smfcode .smfcode-caret{animation:none} }
+</style>
+<script>
+(function(){
+  var root = document.getElementById('smfcode'); if(!root) return;
+  var ds = root.dataset;
+  var field = root.querySelector('.smfcode-field'), codeEl = root.querySelector('.smfcode-code');
+  root.querySelector('.smfcode-ph').textContent = ds.placeholder || 'Введите код для доступа к сайту';
+  var SYM = Array.from(ds.symbols || '№#!%?@&*$0123456789ABCDEFXYZ');
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var WAIT = (parseFloat(ds.wait) || 2) * 1000, BRUTE = parseFloat(ds.brute); BRUTE = isNaN(BRUTE) ? 6000 : BRUTE * 1000;
+  var TICK = Math.max(30, parseFloat(ds.tick) || 70) * (reduce ? 4 : 1), LEN = parseInt(ds.len, 10) || 9;
+  var BG = parseInt(ds.bg, 10) || 34;
+  function rnd(a){ return a[Math.floor(Math.random()*a.length)]; }
+
+  // символы вокруг строки: случайные места, не на самой строке
+  var syms = [];
+  for (var i = 0; i < BG; i++){
+    var s = document.createElement('span'); s.className = 'smfcode-sym' + (Math.random() < .45 ? ' is-dim' : '');
+    var x, y; do { x = 4 + Math.random()*92; y = 6 + Math.random()*88; } while (y > 34 && y < 66 && x > 8 && x < 92);
+    s.style.left = x + '%'; s.style.top = y + '%'; s.style.setProperty('--s', (14 + Math.random()*22).toFixed(0) + 'px');
+    s.textContent = rnd(SYM); field.appendChild(s);
+    syms.push({ el: s, x: x, y: y, ph: Math.random()*6.28, sp: .3 + Math.random()*.6, next: Math.random()*1200 });
+  }
+
+  var code = [], brute = false, phaseT = 0, last = 0, acc = 0, raf = 0, running = false, started = false, len = LEN;
+  function newCode(){ code = []; for (var i = 0; i < len; i++) code.push(rnd(SYM)); }
+  function setBrute(on){ brute = on; root.classList.toggle('is-brute', on); phaseT = 0; if (on){ len = LEN; newCode(); codeEl.textContent = code.join(''); } }
+
+  function frame(now){
+    if (!running) return;
+    var dt = last ? Math.min(100, now - last) : 16; last = now; phaseT += dt;
+    // смена фаз: надпись → перебор → надпись…
+    if (!brute && phaseT >= WAIT) setBrute(true);
+    else if (brute && BRUTE > 0 && phaseT >= BRUTE) setBrute(false);
+    // перебор: каждый тик меняется часть позиций, иногда — длина
+    if (brute){
+      acc += dt;
+      while (acc >= TICK){
+        acc -= TICK;
+        for (var i = 0; i < code.length; i++) if (Math.random() < .55) code[i] = rnd(SYM);
+        if (Math.random() < .06){ len = Math.max(LEN - 3, Math.min(LEN + 2, len + (Math.random() < .5 ? -1 : 1))); while (code.length < len) code.push(rnd(SYM)); code.length = len; }
+        codeEl.textContent = code.join('');
+      }
+    }
+    // фон: символы мерцают, меняются и чуть плывут; во время перебора — чаще
+    var t = now / 1000;
+    for (var k = 0; k < syms.length; k++){
+      var o = syms[k];
+      o.next -= dt * (brute ? 2.2 : 1);
+      if (o.next <= 0){ o.el.textContent = rnd(SYM); o.el.style.opacity = (Math.random() < .25 ? 0 : (.25 + Math.random()*.6)).toFixed(2); o.next = 300 + Math.random()*1500; }
+      if (!reduce){ var dy = Math.sin(t*o.sp + o.ph) * 6, dx = Math.cos(t*o.sp*.7 + o.ph) * 4;
+        o.el.style.transform = 'translate(calc(-50% + ' + dx.toFixed(1) + 'px), calc(-50% + ' + dy.toFixed(1) + 'px))'; }
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  function play(){ if (running) return; running = true; last = 0; raf = requestAnimationFrame(frame); }
+  function stop(){ running = false; cancelAnimationFrame(raf); }
+
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if (e.isIntersecting){ if (!started){ started = true; root.classList.add('is-on'); } play(); }
+      else stop();
+    });
+  }, { threshold: .35 });
+  io.observe(root);
+})();
+</script>
+<!-- ===== SMF-CODE:END — до сюда ===== -->
+
+</body>
+</html>
