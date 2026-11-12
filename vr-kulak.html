@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VR-очки, хват кулаком — демо</title>
+<style>html,body{margin:0;background:#0b0d12}</style>
+</head>
+<body>
+
+<!-- ===== SMF-VR:START — копировать в HTML-блок Tilda (T123) отсюда ===== -->
+<!--
+  Блок «VR-очки прилетают, рука забирает».
+  Настройки (data-*):
+  data-autoplay   — "1": старт, когда блок на экране; "0": по клику
+  data-replay     — "1": клик по сцене проигрывает анимацию заново
+  data-glasses-src, data-hand-src — (необязательно) ссылки на свои PNG с прозрачным фоном вместо нарисованных кодом
+  data-hand-rot   — поворот фото руки в градусах (чтобы предплечье уходило вправо)
+  data-hand-grip  — точка хвата на фото руки, доли ширины,высоты: "0.12,0.15"
+  data-hand-grip-src, data-hand-rot2, data-hand-grip2 — вторая поза (сжатая рука): картинка того же размера, угол, точка хвата
+-->
+<!-- Рука: сгенерирована ИИ командой (стиль «рентген», как у хакатона), фон вырезан. В Tilda заменить путь на ссылку из загрузки картинок. -->
+<div id="smfvr" class="smfvr" data-autoplay="1" data-replay="1"
+     data-hand-src="assets/hand-xray-open-ai.png" data-hand-rot="-4" data-hand-grip="0.40,0.58"
+     data-hand-grip-src="assets/hand-xray-fist-ai.png" data-hand-rot2="0" data-hand-grip2="0.473,0.55">
+  <div class="smfvr-stage">
+    <div class="smfvr-shadow"></div>
+
+    <!-- Очки -->
+    <div class="smfvr-glasses">
+      <svg viewBox="0 0 440 300" aria-label="VR-шлем">
+        <defs>
+          <linearGradient id="smfvr-shell" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#f4f6f9"/><stop offset=".55" stop-color="#dfe3ea"/><stop offset="1" stop-color="#b9bfca"/>
+          </linearGradient>
+          <linearGradient id="smfvr-side" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#aeb4bf"/><stop offset="1" stop-color="#8a909c"/>
+          </linearGradient>
+          <linearGradient id="smfvr-face" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#2b3448"/><stop offset=".5" stop-color="#121826"/><stop offset="1" stop-color="#05070c"/>
+          </linearGradient>
+          <linearGradient id="smfvr-gloss" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="smfvr-glow" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#4da3ff" stop-opacity="0"/><stop offset=".5" stop-color="#7cc8ff"/><stop offset="1" stop-color="#4da3ff" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="smfvr-strap" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#3a404c"/><stop offset="1" stop-color="#22262e"/>
+          </linearGradient>
+        </defs>
+        <!-- верхний и боковые ремни (за корпусом) — главный признак шлема -->
+        <path d="M118 112 C126 22 314 22 322 112" fill="none" stroke="url(#smfvr-strap)" stroke-width="24" stroke-linecap="round"/>
+        <path d="M124 104 C134 40 306 40 316 104" fill="none" stroke="#4a515e" stroke-width="2" opacity=".7"/>
+        <path d="M52 168 C18 160 6 132 14 104" fill="none" stroke="url(#smfvr-strap)" stroke-width="22" stroke-linecap="round"/>
+        <path d="M388 168 C422 160 434 132 426 104" fill="none" stroke="url(#smfvr-strap)" stroke-width="22" stroke-linecap="round"/>
+        <!-- мягкий уплотнитель для лица (снизу/сзади) -->
+        <path d="M70 226 C110 262 330 262 370 226 L370 214 L70 214 Z" fill="#30343c"/>
+        <path d="M196 252 C204 236 236 236 244 252 Z" fill="#1a1d23"/>
+        <!-- корпус: объём — светлая передняя часть и тёмная боковая грань -->
+        <path d="M384 104 L404 116 C410 120 412 128 412 136 L412 206 C412 216 406 224 398 228 L384 236 Z" fill="url(#smfvr-side)"/>
+        <rect x="40" y="94" width="350" height="146" rx="46" fill="url(#smfvr-shell)"/>
+        <rect x="40" y="94" width="350" height="146" rx="46" fill="none" stroke="#9aa1ad" stroke-width="1.5"/>
+        <!-- передняя стеклянная панель -->
+        <rect x="58" y="108" width="314" height="118" rx="36" fill="url(#smfvr-face)"/>
+        <path d="M76 120 C140 110 290 110 354 120 C350 134 334 140 314 140 L116 140 C96 140 80 134 76 120 Z" fill="url(#smfvr-gloss)" opacity=".55"/>
+        <!-- камеры трекинга по углам -->
+        <circle cx="86" cy="134" r="7" fill="#0a0d13" stroke="#3b4357" stroke-width="2"/><circle cx="86" cy="134" r="2.4" fill="#5a6b8c"/>
+        <circle cx="344" cy="134" r="7" fill="#0a0d13" stroke="#3b4357" stroke-width="2"/><circle cx="344" cy="134" r="2.4" fill="#5a6b8c"/>
+        <circle cx="86" cy="200" r="7" fill="#0a0d13" stroke="#3b4357" stroke-width="2"/><circle cx="86" cy="200" r="2.4" fill="#5a6b8c"/>
+        <circle cx="344" cy="200" r="7" fill="#0a0d13" stroke="#3b4357" stroke-width="2"/><circle cx="344" cy="200" r="2.4" fill="#5a6b8c"/>
+        <!-- надпись на панели -->
+        <text x="215" y="190" text-anchor="middle" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif" font-size="30" font-weight="800" letter-spacing="6" fill="#7cc8ff" opacity=".9">VR</text>
+        <!-- выноска «VR-очки» (появляется, пока шлем парит) -->
+        <g class="smfvr-label" opacity="0">
+          <path d="M70 104 L22 44 L-70 44" fill="none" stroke="#7cc8ff" stroke-width="2"/>
+          <circle cx="70" cy="104" r="5" fill="#7cc8ff"/>
+          <text x="-70" y="32" font-family="system-ui,-apple-system,Segoe UI,Arial,sans-serif" font-size="24" font-weight="700" letter-spacing="3" fill="#e9ecf2">VR-ОЧКИ</text>
+        </g>
+        <!-- индикатор -->
+        <rect x="150" y="206" width="130" height="3" rx="1.5" fill="url(#smfvr-glow)" class="smfvr-led"/>
+        <circle cx="215" cy="118" r="2.6" fill="#7cc8ff" class="smfvr-led"/>
+        <!-- кнопка и регулятор на корпусе -->
+        <rect x="150" y="90" width="34" height="6" rx="3" fill="#c3c8d1"/>
+      </svg>
+    </div>
+
+    <!-- Рука (сверху справа, пальцы вниз) -->
+    <div class="smfvr-hand">
+      <svg viewBox="0 0 300 440" aria-label="Рука">
+        <defs>
+          <linearGradient id="smfvr-skin" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#d9a283"/><stop offset=".45" stop-color="#eebc9d"/><stop offset="1" stop-color="#cf9576"/>
+          </linearGradient>
+          <linearGradient id="smfvr-sleeve" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#1e2533"/><stop offset=".5" stop-color="#2d3648"/><stop offset="1" stop-color="#1a202c"/>
+          </linearGradient>
+        </defs>
+        <!-- предплечье и рукав -->
+        <path d="M108 -10 L204 -10 L212 150 L100 150 Z" fill="url(#smfvr-skin)"/>
+        <path d="M96 -10 L216 -10 L214 70 C180 80 132 80 98 70 Z" fill="url(#smfvr-sleeve)"/>
+        <path d="M98 70 C132 80 180 80 214 70" fill="none" stroke="#3a4560" stroke-width="3"/>
+        <!-- большой палец -->
+        <g class="smfvr-f smfvr-thumb" style="transform-origin:104px 200px">
+          <path d="M104 196 C82 206 66 236 64 262 C63 276 78 280 86 270 C94 252 104 236 118 226 Z" fill="url(#smfvr-skin)" stroke="#b97c5e" stroke-width="1.5"/>
+          <path d="M68 262 C70 254 76 252 80 256" fill="none" stroke="#b97c5e" stroke-width="1.2" opacity=".7"/>
+        </g>
+        <!-- ладонь -->
+        <path d="M98 150 C98 140 106 134 118 134 L196 134 C206 134 214 142 214 152 L216 268 C216 286 206 296 190 298 L122 298 C106 296 98 284 98 268 Z" fill="url(#smfvr-skin)" stroke="#b97c5e" stroke-width="1.5"/>
+        <path d="M120 238 C150 250 180 250 204 236" fill="none" stroke="#b97c5e" stroke-width="1.2" opacity=".5"/>
+        <!-- пальцы: две фаланги, сгибаются от костяшки -->
+        <g class="smfvr-f" data-i="0" style="transform-origin:120px 292px">
+          <rect x="108" y="286" width="24" height="56" rx="12" fill="url(#smfvr-skin)" stroke="#b97c5e" stroke-width="1.5"/>
+          <g class="smfvr-tip" style="transform-origin:120px 336px"><rect x="109" y="330" width="22" height="44" rx="11" fill="url(#smfvr-skin)" stroke="#b97c5e" stroke-width="1.5"/></g>
+        </g>
+        <g class="smfvr-f" data-i="1" style="transform-origin:147px 296px">
+          <rect x="135" y="290" width="25" height="64" rx="12.5" fill="url(#smfvr-skin)" stroke="#b97c5e" stroke-width="1.5"/>
+          <g class="smfvr-tip" style="transform-origin:147px 348px"><rect x="136" y="342" width="23" height="50" rx="11.5" fill="url(#smfvr-skin)" stroke="#b97c5e" stroke-width="1.5"/></g>
+        </g>
+        <g class="smfvr-f" data-i="2" style="transform-origin:174px 295px">
+          <rect x="162" y="289" width="25" height="60" rx="12.5" fill="url(#smfvr-skin)" stroke="#b97c5e" stroke-width="1.5"/>
+          <g class="smfvr-tip" style="transform-origin:174px 343px"><rect x="163" y="337" width="23" height="47" rx="11.5" fill="url(#smfvr-skin)" stroke="#b97c5e" stroke-width="1.5"/></g>
+        </g>
+        <g class="smfvr-f" data-i="3" style="transform-origin:199px 290px">
+          <rect x="189" y="284" width="21" height="48" rx="10.5" fill="url(#smfvr-skin)" stroke="#b97c5e" stroke-width="1.5"/>
+          <g class="smfvr-tip" style="transform-origin:199px 326px"><rect x="190" y="320" width="19" height="38" rx="9.5" fill="url(#smfvr-skin)" stroke="#b97c5e" stroke-width="1.5"/></g>
+        </g>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<style>
+#smfvr{
+  --smfvr-bg:#0b0d12;
+  position:relative; width:100%; height:100vh; height:100svh; min-height:480px; max-height:1000px;
+  background:var(--smfvr-bg); overflow:hidden; cursor:default;
+}
+#smfvr[data-replay="1"]{cursor:pointer}
+#smfvr *{box-sizing:border-box}
+#smfvr .smfvr-stage{position:absolute;inset:0}
+#smfvr .smfvr-glasses,#smfvr .smfvr-hand{position:absolute;left:0;top:0;will-change:transform;pointer-events:none}
+#smfvr .smfvr-glasses svg,#smfvr .smfvr-hand svg,#smfvr img{display:block;width:100%;height:auto;overflow:visible}
+#smfvr .smfvr-hand{position:absolute}
+#smfvr .smfvr-hand .smfvr-h2{position:absolute;left:0;top:0;opacity:0}
+#smfvr .smfvr-glasses{z-index:2;filter:drop-shadow(0 18px 24px rgba(0,0,0,.55))}
+#smfvr .smfvr-hand{z-index:3;filter:drop-shadow(-8px 14px 18px rgba(0,0,0,.45))}
+#smfvr .smfvr-shadow{
+  position:absolute; left:0; top:0; z-index:1; width:300px; height:40px; border-radius:50%;
+  background:radial-gradient(closest-side,rgba(0,0,0,.55),rgba(0,0,0,0)); opacity:0; will-change:transform,opacity;
+}
+#smfvr .smfvr-f,#smfvr .smfvr-tip{transform-box:view-box}
+#smfvr .smfvr-led{animation:smfvr-led 2.6s ease-in-out infinite}
+@keyframes smfvr-led{50%{opacity:.35}}
+</style>
+
+<script>
+(function(){
+  var root = document.getElementById('smfvr');
+  if (!root || root.dataset.smfInit) return;
+  root.dataset.smfInit = '1';
+
+  var G = root.querySelector('.smfvr-glasses'), H = root.querySelector('.smfvr-hand'), SH = root.querySelector('.smfvr-shadow');
+  var fingers = Array.prototype.slice.call(root.querySelectorAll('.smfvr-f[data-i]'));
+  var tips = fingers.map(function(f){ return f.querySelector('.smfvr-tip'); });
+  var thumb = root.querySelector('.smfvr-thumb');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // свои картинки вместо нарисованных (если заданы)
+  function swap(el, src, alt){ if (!src) return; el.innerHTML = '<img alt="' + alt + '" src="' + src + '">'; }
+  swap(G, root.dataset.glassesSrc, 'VR-очки');
+  var imgHand = !!root.dataset.handSrc, twoPose = imgHand && !!root.dataset.handGripSrc;
+  if (imgHand){
+    H.innerHTML = '<img class="smfvr-h1" alt="Рука" src="' + root.dataset.handSrc + '">' +
+      (twoPose ? '<img class="smfvr-h2" alt="" src="' + root.dataset.handGripSrc + '">' : '');
+    fingers = []; tips = []; thumb = null;
+  }
+  var H1 = H.querySelector('.smfvr-h1'), H2 = H.querySelector('.smfvr-h2');
+
+  /* ---------- размеры сцены ---------- */
+  var W, Hh, gW, hW, cx, cy;
+  function measure(){
+    W = root.clientWidth; Hh = root.clientHeight;
+    gW = Math.min(W * 0.62, Hh * 0.75, 460);          // ширина очков
+    cx = W * 0.5; cy = Hh * 0.54;
+    // ширина руки: нарисованная — от шлема; фото — чтобы предплечье доставало до правого края экрана
+    hW = imgHand ? Math.max(gW * 2.0, (W - (cx + gW * 0.4) + 60) / 0.6) : gW * 0.62;
+    G.style.width = gW + 'px'; H.style.width = hW + 'px';
+    SH.style.width = gW * 0.8 + 'px';
+    cx = W * 0.5; cy = Hh * 0.54;                     // где очки «зависают»
+  }
+  measure();
+
+  /* ---------- математика движения ---------- */
+  function clamp(x){ return x < 0 ? 0 : x > 1 ? 1 : x; }
+  function easeOutCubic(x){ return 1 - Math.pow(1 - x, 3); }
+  function easeInOutCubic(x){ return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
+  function easeInCubic(x){ return x * x * x; }
+  // затухающее колебание: инерция после «броска»
+  function damped(t, freq, decay){ return Math.exp(-decay * t) * Math.cos(2 * Math.PI * freq * t); }
+  // мягкий шум для мелкой тряски
+  function noise(t, s){ return Math.sin(t * 37.1 + s) * .5 + Math.sin(t * 23.7 + s * 2.1) * .3 + Math.sin(t * 61.3 + s * .7) * .2; }
+
+  // тайминги (с)
+  var T = { fly: 1.5, hover: 0.5, reach: 1.25, grip: 0.45, hold: 0.25, exit: 1.15 };
+  var tReach = T.fly + T.hover, tGrip = tReach + T.reach, tExit = tGrip + T.grip + T.hold, tEnd = tExit + T.exit;
+
+  // поза руки: угол наклона, точка хвата (кончики пальцев) в долях ширины/высоты картинки руки
+  var HAND_ROT = 84, GRIP_PT = { x: 0.53, y: 0.80 };   // 84° — пальцы смотрят влево, рука выходит справа
+  var handRatio = 440 / 300;
+  if (imgHand){
+    // для фото: угол и точка хвата в долях картинки задаются атрибутами
+    HAND_ROT = parseFloat(root.dataset.handRot || '-42');
+    var gp = (root.dataset.handGrip || '0.12,0.15').split(',');
+    GRIP_PT = { x: parseFloat(gp[0]), y: parseFloat(gp[1]) };
+    var gp2 = (root.dataset.handGrip2 || root.dataset.handGrip || '0.5,0.5').split(',');
+    var GRIP2 = { x: parseFloat(gp2[0]), y: parseFloat(gp2[1]) }, ROT2 = parseFloat(root.dataset.handRot2 || root.dataset.handRot || '0');
+    var im = H.querySelector('img');
+    var setRatio = function(){ if (im.naturalWidth) handRatio = im.naturalHeight / im.naturalWidth; };
+    if (im.complete) setRatio(); else im.addEventListener('load', setRatio);
+  }
+
+  function handPlace(px, py, rot, sq){
+    // ставим руку так, чтобы точка хвата оказалась в (px,py); sq — «сжатие» кисти при хвате
+    var hh = hW * handRatio, ox = hW * GRIP_PT.x, oy = hh * GRIP_PT.y;
+    H.style.transformOrigin = ox + 'px ' + oy + 'px';
+    H.style.transform = 'translate(' + (px - ox).toFixed(1) + 'px,' + (py - oy).toFixed(1) + 'px) rotate(' + rot.toFixed(2) + 'deg)' +
+      (sq ? ' scale(' + (1 - sq * 0.035).toFixed(3) + ',' + (1 - sq * 0.02).toFixed(3) + ')' : '');
+  }
+  var LBL = G.querySelector('.smfvr-label');
+  // вторая поза (сжатая рука) совмещается с первой по точке хвата
+  function placeH2(){
+    if (!H2) return;
+    var hh = hW * handRatio;
+    H2.style.transformOrigin = (GRIP2.x * hW) + 'px ' + (GRIP2.y * hh) + 'px';
+    H2.style.transform = 'translate(' + ((GRIP_PT.x - GRIP2.x) * hW).toFixed(1) + 'px,' + ((GRIP_PT.y - GRIP2.y) * hh).toFixed(1) + 'px) rotate(' + (ROT2 - HAND_ROT).toFixed(2) + 'deg)';
+  }
+  // смена позы: короткая «помеха» с цветным сдвигом — в стиле обложки хакатона
+  function setPose(m, t){
+    if (!H2) return;
+    H1.style.opacity = (1 - m).toFixed(3); H2.style.opacity = m.toFixed(3);
+    var g = Math.sin(Math.PI * clamp(m)) ;
+    if (g > 0.02){
+      var j = (noise(t * 3, 9) * 6 * g).toFixed(1);
+      H.style.filter = 'drop-shadow(' + (5 * g).toFixed(1) + 'px 0 rgba(255,40,70,.75)) drop-shadow(' + (-5 * g).toFixed(1) + 'px 0 rgba(40,200,255,.75)) drop-shadow(-8px 14px 18px rgba(0,0,0,.45))';
+      H.style.marginLeft = j + 'px';
+    } else { H.style.filter = ''; H.style.marginLeft = '0px'; }
+  }
+  function glassesPlace(x, y, rot, sc){
+    var gh = gW * 300 / 440;
+    G.style.transform = 'translate(' + (x - gW / 2).toFixed(1) + 'px,' + (y - gh / 2).toFixed(1) + 'px) rotate(' + rot.toFixed(2) + 'deg) scale(' + sc.toFixed(3) + ')';
+  }
+  function shadowPlace(x, y, op, sc){
+    SH.style.opacity = op.toFixed(3);
+    SH.style.transform = 'translate(' + (x - gW * 0.4).toFixed(1) + 'px,' + (y).toFixed(1) + 'px) scale(' + sc.toFixed(3) + ',1)';
+  }
+  function setCurl(k){                                 // 0 — пальцы прямые, 1 — обхватили
+    fingers.forEach(function(f, i){
+      var a = k * (18 + i * 4);
+      f.style.transform = 'rotate(' + a.toFixed(1) + 'deg) scaleY(' + (1 - k * 0.18).toFixed(3) + ')';
+      tips[i].style.transform = 'rotate(' + (k * 38).toFixed(1) + 'deg) scaleY(' + (1 - k * 0.3).toFixed(3) + ')';
+    });
+    if (thumb) thumb.style.transform = 'rotate(' + (-k * 16).toFixed(1) + 'deg)';
+  }
+
+  var raf = 0, t0 = 0, playing = false;
+  function smooth(x){ x = clamp(x); return x * x * (3 - 2 * x); }
+
+  // положение шлема в полёте и пока он парит (до момента хвата)
+  function floatState(t){
+    var gx, gy, grot, gsc = 1;
+    if (t < T.fly){
+      var p = clamp(t / T.fly), e = easeOutCubic(p);
+      gx = W + gW * 0.8 + (cx - W - gW * 0.8) * e;
+      gy = cy - Hh * 0.18 * Math.sin(Math.PI * p) * (1 - p * 0.3);     // дуга полёта
+      grot = 24 * (1 - e) + 6 * damped(t, 1.6, 2.2);
+      var shake = (1 - p) * 3.2;
+      gx += noise(t, 1) * shake; gy += noise(t, 4) * shake; grot += noise(t, 7) * shake * 0.6;
+      gsc = 0.86 + 0.14 * e;
+    } else {
+      var th = t - T.fly;
+      gx = cx + 10 * damped(th, 1.1, 3.4);
+      gy = cy + 6 * Math.sin(th * 2.4) * Math.min(1, th * 2) - 8 * damped(th, 1.3, 3);
+      grot = 4 * damped(th, 1.2, 3.2) + 1.2 * Math.sin(th * 1.9);
+    }
+    return { x: gx, y: gy, r: grot, s: gsc };
+  }
+
+  function draw(t){
+    var GOX = gW * 0.40, GOY = gW * 0.02;                   // точка хвата относительно центра шлема
+    var f = floatState(Math.min(t, tGrip));                 // после хвата «полёт» замирает — дальше шлем ведёт рука
+    var gx = f.x, gy = f.y, grot = f.r, gsc = f.s;
+    var hx, hy, hrot = HAND_ROT, curl = 0, sq = 0;
+    var gripX = gx + GOX, gripY = gy + GOY;
+    var startX = W + hW * 1.7, startY = gripY + hW * 0.25;
+
+    if (t < tReach){
+      hx = startX + hW; hy = startY;                         // рука ещё за правым краем
+    } else if (t < tGrip){
+      /* 3. Рука тянется: разгон, торможение у цели, лёгкий «доводящий» жест */
+      var pr = clamp((t - tReach) / T.reach), er = easeOutCubic(pr);
+      hx = startX + (gripX - startX) * er + 6 * Math.sin(Math.PI * smooth((pr - 0.75) / 0.25));
+      hy = startY + (gripY - startY) * easeInOutCubic(pr) - Math.sin(Math.PI * pr) * hW * 0.12;
+      hrot = HAND_ROT + 8 * (1 - er);
+      curl = -0.15 * Math.sin(Math.PI * pr);
+    } else {
+      /* 4. Хват и уход: шлем висит на руке и качается вокруг точки хвата, как настоящий предмет */
+      var tau = t - tGrip;
+      var close = easeOutCubic(clamp(tau / 0.3));            // кисть сжимается
+      var lift = -gW * 0.07 * easeInOutCubic(clamp((tau - 0.18) / 0.5));   // приподнимает
+      var px = clamp((t - tExit) / T.exit), ex = easeInCubic(px);
+      var endX = W + gW * 1.25;
+      var Px = gripX + (endX - gripX) * ex;
+      var Py = gripY + lift - Hh * 0.06 * ex - Math.sin(Math.PI * px) * Hh * 0.025;
+      // маятник: свободный (левый) край проседает под весом, затухающее покачивание,
+      // при рывке вверх-вправо шлем ещё сильнее отстаёт
+      var hang = -10 * smooth(tau / 0.28);
+      var osc = 3.5 * Math.exp(-4.5 * tau) * Math.sin(2 * Math.PI * 1.6 * tau) * smooth(tau / 0.1);
+      var lag = -9 * Math.sin(Math.PI * px) * (1 - 0.4 * px);
+      var phi = hang + osc + lag;
+      var rad = phi * Math.PI / 180, c = Math.cos(rad), sn = Math.sin(rad);
+      gx = Px + (-GOX) * c - (-GOY) * sn;
+      gy = Py + (-GOX) * sn + (-GOY) * c;
+      grot = f.r + phi;
+      hx = Px; hy = Py;
+      hrot = HAND_ROT + 6 * close + phi * 0.25 - 3 * ex;     // запястье подстраивается под вес
+      curl = close; sq = close;
+    }
+
+    glassesPlace(gx, gy, grot, gsc);
+    handPlace(hx, hy, hrot, imgHand && !H2 ? sq : 0);
+    if (H2){ placeH2(); setPose(t < tGrip ? 0 : smooth((t - tGrip - 0.03) / 0.16), t); }
+    setCurl(Math.max(-0.15, curl));
+    // выноска «VR-очки»: видна, пока шлем парит, гаснет перед хватом
+    if (LBL){
+      var lo = smooth((t - T.fly - 0.1) / 0.35) * (1 - smooth((t - tGrip + 0.45) / 0.3));
+      LBL.setAttribute('opacity', lo.toFixed(3));
+    }
+    // тень: появляется при прилёте, бледнеет, когда шлем подняли и унесли
+    var shOp = t < T.fly ? clamp(t / T.fly) * 0.8 : 0.8 * (1 - smooth((cy - gy - 10) / (gW * 0.3)));
+    shadowPlace(gx, cy + gW * 0.36, Math.max(0, shOp), 0.8 + 0.2 * clamp((gy - cy + 50) / 100));
+  }
+  function frame(now){
+    var t = (now - t0) / 1000;
+    draw(t);
+    if (t < tEnd + 0.1){ raf = requestAnimationFrame(frame); } else { playing = false; }
+  }
+  // служебное: показать кадр на секунде t (для проверки)
+  root.smfvrSeek = function(t){ cancelAnimationFrame(raf); playing = false; measure(); draw(t); };
+
+  function play(){
+    if (playing) return;
+    measure();
+    playing = true;
+    if (reduce){ glassesPlace(cx, cy, 0, 1); handPlace(W + hW * 4, cy, HAND_ROT); shadowPlace(cx, cy + gW * 0.36, 0.8, 1); playing = false; return; }
+    t0 = performance.now();
+    cancelAnimationFrame(raf); raf = requestAnimationFrame(frame);
+  }
+  // начальное состояние: всё за кадром
+  glassesPlace(W + gW * 2, cy, 20, 0.9); handPlace(W + hW * 4, cy, HAND_ROT); shadowPlace(cx, cy, 0, 1);
+
+  window.addEventListener('resize', function(){ if (!playing) measure(); });
+  if (root.dataset.replay === '1') root.addEventListener('click', function(){ playing = false; play(); });
+
+  if (root.dataset.autoplay !== '0'){
+    if ('IntersectionObserver' in window){
+      var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting && e.intersectionRatio > 0.4){ play(); io.disconnect(); } }); }, { threshold: [0.4, 0.7] });
+      io.observe(root);
+    } else play();
+  }
+})();
+</script>
+<!-- ===== SMF-VR:END — до сюда ===== -->
+
+</body>
+</html>
