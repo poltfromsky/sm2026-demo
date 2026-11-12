@@ -22,11 +22,8 @@
   data-sound-src — (необязательно) ссылка на свой звук вместо встроенного
   data-caption-start / data-caption-end — подписи ({d} {m} {y} подставятся сами)
   Цвет пометки — переменная --smfcal-chalk в <style>.
-  Рукописный шрифт «Caveat» грузится с Google Fonts; если не загрузится — подставится системный рукописный.
+  Шрифты — как во всех блоках: Georgia для заголовков и подписей, системный для текста (внешних шрифтов нет).
 -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap" rel="stylesheet">
 <div id="smfcal" class="smfcal"
      data-from="2026" data-year="2040" data-month="11" data-day="13" data-realtime="0"
      data-tap="1" data-sound="1"
@@ -104,7 +101,7 @@
 #smfcal .smfcal-mark{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none}
 #smfcal .smfcal-mark path{fill:none;stroke:var(--smfcal-chalk);stroke-width:4;stroke-linecap:round;stroke-linejoin:round;filter:url(#smfcal-chalk)}
 #smfcal .smfcal-mark .smfcal-word{
-  fill:var(--smfcal-chalk); font:600 22px "Caveat","Segoe Print","Bradley Hand","Comic Sans MS",cursive; letter-spacing:.01em;
+  fill:var(--smfcal-chalk); font:italic 400 22px Georgia,"Times New Roman",serif; letter-spacing:.01em;
 }
 
 /* Подпись — «напечатанная» */
@@ -399,11 +396,8 @@
 
   var rt;
   window.addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(layoutMarks, 150); });
-  // ждём рукописный шрифт (не дольше 1,5 с), иначе ширина «сегодня» посчитается неверно
-  if (document.fonts && document.fonts.load){
-    Promise.race([document.fonts.load('600 22px Caveat', 'сегодня'), new Promise(function(r){ setTimeout(r, 1500); })])
-      .then(function(){ return document.fonts.ready; }).then(ready, ready);
-  } else window.addEventListener('load', ready);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(ready, ready);
+  else window.addEventListener('load', ready);
 })();
 </script>
 <!-- ===== SMF-CAL:END — до сюда ===== -->

@@ -9,12 +9,15 @@
 <body>
 <!-- ===== SMF-CODE:START — копировать в HTML-блок Tilda (T123) отсюда ===== -->
 <!--
-  Блок «Код доступа»: поисковая строка «Введите код для доступа к сайту»,
-  в ней идёт перебор случайных символов, вокруг мерцают символы. Результата нет — только перебор.
+  Блок «Код доступа»: поисковая строка «Введите код для доступа к сайту», в ней идёт перебор
+  случайных символов, вокруг мерцают символы. В конце символы «схлопываются» в надпись
+  «ДОСТУП РАЗРЕШЁН», и строка загорается зелёным. Дальше блок остаётся в этом состоянии.
   Настройки (data-*):
   data-placeholder — надпись в строке
   data-wait        — сколько секунд видна надпись перед перебором
-  data-brute       — сколько секунд идёт перебор, потом снова надпись (0 — перебор без остановки)
+  data-brute       — сколько секунд идёт перебор до финала
+  data-final       — финальная надпись (зелёная)
+  data-reveal      — сколько секунд «проявляется» финальная надпись
   data-tick        — скорость перебора, мс на смену символов (меньше — быстрее)
   data-len         — длина кода в строке (символов)
   data-symbols     — из каких символов собирать перебор
@@ -23,6 +26,7 @@
 -->
 <section id="smfcode" class="smfcode"
      data-placeholder="Введите код для доступа к сайту"
+     data-final="ДОСТУП РАЗРЕШЁН" data-reveal="1.8"
      data-wait="2" data-brute="6" data-tick="70" data-len="9"
      data-symbols="№#!%?@&amp;*$+=/\<>0123456789ABCDEFGHJKLMNPQRSTUVWXYZАБВГДЖЗИКЛМНПРСТФЦЧШЭЮЯ"
      data-bg="34">
@@ -44,8 +48,8 @@
 <style>
 #smfcode{
   --smfcode-bg:#0b0d12; --smfcode-frame:#2a3140; --smfcode-bar:#121722; --smfcode-line:#3c4658;
-  --smfcode-text:#e9ecf2; --smfcode-muted:#8b93a3; --smfcode-hud:#8cc4d4;
-  --smfcode-mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --smfcode-text:#e9ecf2; --smfcode-muted:#8b93a3; --smfcode-hud:#8cc4d4; --smfcode-ok:#5fd48a;
+  --smfcode-mono:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
   background:var(--smfcode-bg); padding:clamp(28px,6vw,64px) 16px; box-sizing:border-box;
 }
 #smfcode *{box-sizing:border-box}
@@ -85,6 +89,12 @@
 #smfcode:not(.is-brute) .smfcode-caret{order:-1; margin:0 6px 0 0}
 #smfcode .smfcode-lens{flex:none; width:clamp(30px,5vw,44px); height:auto; color:var(--smfcode-text); transition:color .4s}
 #smfcode.is-brute .smfcode-lens{color:var(--smfcode-hud)}
+#smfcode.is-ok .smfcode-bar{border-color:var(--smfcode-ok); box-shadow:0 0 34px color-mix(in srgb,var(--smfcode-ok) 38%,transparent)}
+#smfcode.is-ok .smfcode-lens,#smfcode.is-ok .smfcode-code{color:var(--smfcode-ok)}
+#smfcode.is-ok .smfcode-code{letter-spacing:.08em; text-shadow:0 0 14px color-mix(in srgb,var(--smfcode-ok) 55%,transparent)}
+#smfcode.is-ok .smfcode-caret{display:none}
+#smfcode.is-ok .smfcode-sym{color:var(--smfcode-ok); text-shadow:0 0 10px color-mix(in srgb,var(--smfcode-ok) 45%,transparent)}
+#smfcode .smfcode-sym,#smfcode .smfcode-lens{transition:opacity .35s ease,color .6s ease}
 @media (max-width:600px){ #smfcode .smfcode-frame{aspect-ratio:auto; height:clamp(320px,90vw,440px)} }
 @keyframes smfcode-blink{50%{opacity:0}}
 @media (prefers-reduced-motion:reduce){ #smfcode .smfcode-caret{animation:none} }
@@ -97,7 +107,8 @@
   root.querySelector('.smfcode-ph').textContent = ds.placeholder || 'Введите код для доступа к сайту';
   var SYM = Array.from(ds.symbols || '№#!%?@&*$0123456789ABCDEFXYZ');
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var WAIT = (parseFloat(ds.wait) || 2) * 1000, BRUTE = parseFloat(ds.brute); BRUTE = isNaN(BRUTE) ? 6000 : BRUTE * 1000;
+  var WAIT = (parseFloat(ds.wait) || 2) * 1000, BRUTE = (parseFloat(ds.brute) || 6) * 1000, REVEAL = (parseFloat(ds.reveal) || 1.8) * 1000;
+  var FINAL = Array.from(ds.final || 'ДОСТУП РАЗРЕШЁН');
   var TICK = Math.max(30, parseFloat(ds.tick) || 70) * (reduce ? 4 : 1), LEN = parseInt(ds.len, 10) || 9;
   var BG = parseInt(ds.bg, 10) || 34;
   function rnd(a){ return a[Math.floor(Math.random()*a.length)]; }
@@ -112,18 +123,28 @@
     syms.push({ el: s, x: x, y: y, ph: Math.random()*6.28, sp: .3 + Math.random()*.6, next: Math.random()*1200 });
   }
 
-  var code = [], brute = false, phaseT = 0, last = 0, acc = 0, raf = 0, running = false, started = false, len = LEN;
+  var code = [], brute = false, phase = 'wait', done = false, phaseT = 0, last = 0, acc = 0, raf = 0, running = false, started = false, len = LEN;
   function newCode(){ code = []; for (var i = 0; i < len; i++) code.push(rnd(SYM)); }
-  function setBrute(on){ brute = on; root.classList.toggle('is-brute', on); phaseT = 0; if (on){ len = LEN; newCode(); codeEl.textContent = code.join(''); } }
+  function setBrute(on){ brute = on; root.classList.toggle('is-brute', on); phaseT = 0; if (on){ phase = 'brute'; len = LEN; newCode(); codeEl.textContent = code.join(''); } }
 
   function frame(now){
     if (!running) return;
     var dt = last ? Math.min(100, now - last) : 16; last = now; phaseT += dt;
     // смена фаз: надпись → перебор → надпись…
-    if (!brute && phaseT >= WAIT) setBrute(true);
-    else if (brute && BRUTE > 0 && phaseT >= BRUTE) setBrute(false);
+    if (phase === 'wait' && phaseT >= WAIT) setBrute(true);
+    else if (phase === 'brute' && phaseT >= BRUTE){ phase = 'reveal'; phaseT = 0; len = FINAL.length; while (code.length < len) code.push(rnd(SYM)); code.length = len; }
     // перебор: каждый тик меняется часть позиций, иногда — длина
-    if (brute){
+    if (phase === 'reveal'){
+      // слева направо символы замирают на буквах финальной надписи, остальные ещё перебираются
+      var n = Math.min(FINAL.length, Math.floor(phaseT / REVEAL * (FINAL.length + 1)));
+      acc += dt;
+      if (acc >= TICK || n >= FINAL.length){
+        acc = 0; var out = '';
+        for (var j = 0; j < FINAL.length; j++) out += (j < n || FINAL[j] === ' ') ? FINAL[j] : rnd(SYM);
+        codeEl.textContent = out;
+      }
+      if (n >= FINAL.length){ phase = 'done'; root.classList.remove('is-brute'); root.classList.add('is-brute', 'is-ok'); codeEl.textContent = FINAL.join(''); }
+    } else if (phase === 'brute'){
       acc += dt;
       while (acc >= TICK){
         acc -= TICK;
@@ -136,7 +157,7 @@
     var t = now / 1000;
     for (var k = 0; k < syms.length; k++){
       var o = syms[k];
-      o.next -= dt * (brute ? 2.2 : 1);
+      o.next -= dt * (phase === 'brute' || phase === 'reveal' ? 2.2 : 1);
       if (o.next <= 0){ o.el.textContent = rnd(SYM); o.el.style.opacity = (Math.random() < .25 ? 0 : (.25 + Math.random()*.6)).toFixed(2); o.next = 300 + Math.random()*1500; }
       if (!reduce){ var dy = Math.sin(t*o.sp + o.ph) * 6, dx = Math.cos(t*o.sp*.7 + o.ph) * 4;
         o.el.style.transform = 'translate(calc(-50% + ' + dx.toFixed(1) + 'px), calc(-50% + ' + dy.toFixed(1) + 'px))'; }
